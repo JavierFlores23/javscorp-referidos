@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jav’s Corp — Referidos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf7f2;--card:#fff;--ink:#231f1a;--mute:#7a7266;--line:#eee6da;--acc:#e0551f;--acc2:#ff9a4d;--ok:#1f9254;--bad:#d1432f;--warn:#c98a12;--blue:#2f6fcb;--sh:0 6px 24px rgba(60,40,20,.08);--r:18px}
+:root[data-theme="dark"]{--bg:#15120e;--card:#1f1b16;--ink:#f4efe6;--mute:#a69e90;--line:#332d25;--acc:#ff7a45;--acc2:#ffb06a;--ok:#4cc380;--bad:#ff7565;--warn:#efb54e;--blue:#6aa9f0;--sh:0 6px 24px rgba(0,0,0,.35);color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;line-height:1.5;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+h1,h2,.brand{font-family:Fraunces,Georgia,serif;letter-spacing:-.01em}
+main{max-width:780px;margin:0 auto;padding:0 16px 70px}
+.hero{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-radius:0 0 28px 28px;padding:22px 20px 70px;margin:0 -16px;box-shadow:var(--sh)}
+.nav{display:flex;justify-content:space-between;align-items:center;max-width:780px;margin:0 auto}
+.brand{font-size:1.25rem;font-weight:700}.brand span{opacity:.85}
+.nav .r{display:flex;gap:8px}
+.chip{background:rgba(255,255,255,.2);color:#fff;border:0;border-radius:99px;padding:7px 13px;font:inherit;font-size:.85rem;font-weight:500;cursor:pointer}
+.hero h1{margin:22px auto 4px;max-width:780px;font-size:1.9rem;line-height:1.15}
+.hero p{margin:0 auto;max-width:780px;opacity:.92}
+.pull{margin-top:-48px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:var(--sh)}
+h2{font-size:1.2rem;margin:28px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
+.stat{text-align:center}.stat b{display:block;font-family:Fraunces,serif;font-size:2rem;line-height:1.1}.stat span{color:var(--mute);font-size:.82rem}
+label{display:block;font-size:.82rem;color:var(--mute);margin:12px 0 4px;font-weight:500}
+input{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit}
+input:focus{outline:0;border-color:var(--acc)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:520px){.two{grid-template-columns:1fr}}
+button.main{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:0;border-radius:12px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer;margin-top:16px}
+button.main:disabled{opacity:.6}
+button.sm{border:1.5px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:7px 12px;font:inherit;font-size:.83rem;font-weight:500;cursor:pointer}
+button.sm.ok{color:var(--ok);border-color:var(--ok)}button.sm.bad{color:var(--bad);border-color:var(--bad)}
+.link{background:none;border:0;color:var(--acc);font:inherit;font-size:.88rem;cursor:pointer;padding:0;text-decoration:underline}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.who{display:flex;gap:12px;align-items:center}
+.av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
+.badge{font-size:.74rem;padding:4px 11px;border-radius:99px;font-weight:600;white-space:nowrap;background:color-mix(in srgb,currentColor 13%,transparent)}
+.b-training{color:var(--blue)}.b-trabajando{color:var(--warn)}.b-espera{color:var(--acc)}.b-quedo{color:var(--ok)}.b-rechazado{color:var(--bad)}
+.bar{height:10px;background:var(--line);border-radius:9px;overflow:hidden;margin:14px 0 6px;display:flex}.bar i{display:block;height:100%}
+.small{font-size:.85rem;color:var(--mute)}.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:5px;margin:0 0 14px;box-shadow:var(--sh)}
+.tabs button{flex:1;border:0;background:transparent;color:var(--mute);padding:10px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--ink);color:var(--bg)}
+.msg{font-size:.88rem;margin-top:12px;min-height:1.2em}.msg.e{color:var(--bad)}.msg.g{color:var(--ok)}
+.hide{display:none!important}
+.empty{text-align:center;color:var(--mute);padding:26px}
+.auth{max-width:430px;margin:0 auto}
+</style>
+</head>
+<body>
+<header class="hero"><div class="nav"><div class="brand">Jav’s Corp <span>✦</span></div><div class="r"><button class="chip" id="theme">☾</button><button class="chip hide" id="logout">Salir</button></div></div>
+<h1 id="hTitle">Tus referidos, siempre a la vista</h1><p id="hSub">Registra a quién refieres y sigue el proceso día a día.</p></header>
+
+<main class="pull">
+
+<section id="auth" class="auth">
+  <div class="tabs"><button id="tLogin" class="on">Entrar</button><button id="tReg">Crear cuenta</button></div>
+  <div class="card">
+    <form id="fAuth" novalidate>
+      <div id="rowNombre" class="hide"><label>Nombre completo</label><input id="aNombre" autocomplete="name"></div>
+      <label>Correo electrónico</label><input id="aEmail" type="email" autocomplete="email">
+      <div id="rowPass"><label>Contraseña</label><input id="aPass" type="password" autocomplete="current-password"></div>
+      <div id="rowCode" class="hide"><label>Código de empleado</label><input id="aCode" autocomplete="off"><p class="small">Te lo da tu administrador.</p></div>
+      <button class="main" id="aGo" type="submit">Entrar</button>
+      <div style="margin-top:12px"><button type="button" class="link" id="forgot">Olvidé mi contraseña</button></div>
+      <div class="msg" id="aMsg"></div>
+    </form>
+  </div>
+</section>
+
+<section id="recover" class="auth hide">
+  <div class="card"><h2 style="margin-top:0">Nueva contraseña</h2>
+    <label>Escribe tu nueva contraseña</label><input id="rPass" type="password" autocomplete="new-password">
+    <button class="main" id="rGo">Guardar contraseña</button><div class="msg" id="rMsg"></div></div>
+</section>
+
+<section id="app" class="hide">
+  <div class="tabs hide" id="adminTabs"><button id="tMine" class="on">Mis referidos</button><button id="tAdmin">Panel admin</button></div>
+
+  <div id="mine">
+    <div class="card grid" id="stats"></div>
+    <h2>Registrar un referido</h2>
+    <div class="card">
+      <label style="margin-top:0">Nombre completo</label><input id="fName" autocomplete="off">
+      <div class="two"><div><label>Teléfono</label><input id="fPhone" inputmode="tel" autocomplete="off"></div><div><label>Correo electrónico</label><input id="fEmail" type="email" autocomplete="off"></div></div>
+      <label>Fecha en que lo referiste</label><input id="fDate" type="date">
+      <button class="main" id="add">Guardar referido</button><div class="msg" id="msg"></div>
+    </div>
+    <h2>Seguimiento</h2><div id="list"></div>
+  </div>
+
+  <div id="admin" class="hide">
+    <div class="card grid" id="aStats"></div>
+    <div id="aList"></div>
+  </div>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+var C=window.JAV_CONFIG||{}, DT=C.DIAS_TRAINING||30, DW=C.DIAS_TRABAJO||30, DAY=86400000;
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function parse(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2]).getTime()}
+function fmt(t){return new Date(t).toLocaleDateString("es-SV",{day:"numeric",month:"short",year:"numeric"})}
+function today(){var d=new Date();return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
+function monthEnd(t){var d=new Date(t);return new Date(d.getFullYear(),d.getMonth()+1,0).getTime()}
+function setMsg(id,t,k){var e=$(id);e.textContent=t||"";e.className="msg "+(k||"")}
+
+// ---- tema ----
+var th=null;try{th=localStorage.getItem("jav_theme")}catch(e){}
+if(!th)th=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+function applyTheme(){document.documentElement.setAttribute("data-theme",th);$("theme").textContent=th==="dark"?"☀︎":"☾"}
+applyTheme();
+$("theme").onclick=function(){th=th==="dark"?"light":"dark";try{localStorage.setItem("jav_theme",th)}catch(e){}applyTheme()};
+
+// ---- Supabase ----
+var sb=null, me=null, profile=null, mine=[], all=[];
+try{ if(C.SUPABASE_URL&&C.SUPABASE_URL.indexOf("TU-PROYECTO")<0) sb=supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY); }catch(e){}
+if(!sb) setMsg("aMsg","Falta configurar config.js con los datos de Supabase.","e");
+
+// ---- auth UI ----
+var mode="login";
+function setMode(m){mode=m;$("tLogin").classList.toggle("on",m==="login");$("tReg").classList.toggle("on",m==="reg");
+  $("rowNombre").classList.toggle("hide",m!=="reg");$("rowCode").classList.toggle("hide",m!=="reg");
+  $("aGo").textContent=m==="reg"?"Crear mi cuenta":"Entrar";$("aPass").autocomplete=m==="reg"?"new-password":"current-password";setMsg("aMsg","")}
+$("tLogin").onclick=function(){setMode("login")};$("tReg").onclick=function(){setMode("reg")};
+
+$("fAuth").onsubmit=async function(ev){
+  ev.preventDefault(); if(!sb)return;
+  var email=$("aEmail").value.trim(), pass=$("aPass").value;
+  if(!email||pass.length<8){setMsg("aMsg","Escribe tu correo y una contraseña de al menos 8 caracteres.","e");return}
+  $("aGo").disabled=true; setMsg("aMsg","Un momento…");
+  try{
+    if(mode==="reg"){
+      var nombre=$("aNombre").value.trim(), codigo=$("aCode").value.trim();
+      if(!nombre||!codigo){setMsg("aMsg","Completa nombre y código de empleado.","e");return}
+      var r=await sb.auth.signUp({email:email,password:pass,options:{data:{nombre:nombre,codigo:codigo}}});
+      if(r.error) setMsg("aMsg",/database error|código|codigo/i.test(r.error.message)?"Código de empleado incorrecto.":r.error.message,"e");
+      else if(!r.data.session) setMsg("aMsg","Cuenta creada. Revisa tu correo para confirmarla y luego entra.","g");
+    }else{
+      var l=await sb.auth.signInWithPassword({email:email,password:pass});
+      if(l.error) setMsg("aMsg","Correo o contraseña incorrectos.","e");
+    }
+  }catch(e){setMsg("aMsg","Error de conexión. Intenta de nuevo.","e")}
+  finally{$("aGo").disabled=false}
+};
+$("forgot").onclick=async function(){
+  var email=$("aEmail").value.trim(); if(!sb)return;
+  if(!email){setMsg("aMsg","Escribe tu correo arriba y vuelve a tocar el enlace.","e");return}
+  var r=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.href.split("#")[0]});
+  setMsg("aMsg",r.error?"No se pudo enviar el correo.":"Te enviamos un enlace para cambiar tu contraseña.",r.error?"e":"g");
+};
+$("rGo").onclick=async function(){
+  var p=$("rPass").value; if(p.length<8){setMsg("rMsg","Mínimo 8 caracteres.","e");return}
+  var r=await sb.auth.updateUser({password:p});
+  if(r.error)setMsg("rMsg","No se pudo cambiar la contraseña.","e");else{setMsg("rMsg","Listo ✓","g");setTimeout(function(){$("recover").classList.add("hide");boot()},700)}
+};
+$("logout").onclick=async function(){await sb.auth.signOut()};
+
+// ---- cálculo ----
+function info(r){
+  var s=parse(r.fecha_referido), tEnd=s+DT*DAY, wEnd=tEnd+DW*DAY, now=Date.now(), tot=DT+DW;
+  var el=Math.max(0,Math.min(tot,(now-s)/DAY));
+  return {tEnd:tEnd,wEnd:wEnd,el:el,tot:tot,phase:now<tEnd?"training":(now<wEnd?"trabajando":"espera"),left:Math.max(0,Math.ceil((wEnd-now)/DAY)),notify:monthEnd(wEnd)};
+}
+function card(r,adm){
+  var ini=(r.nombre||"?").trim().charAt(0).toUpperCase();
+  var h='<div class="card"><div class="row"><div class="who"><div class="av">'+esc(ini)+'</div><div><b>'+esc(r.nombre)+'</b><div class="small">'+esc(r.telefono)+' · '+esc(r.correo)+'</div><div class="small">Referido el '+fmt(parse(r.fecha_referido))+'</div></div></div>';
+  if(r.resultado==="quedo") h+='<span class="badge b-quedo">Quedó ✓</span></div><p class="small">Este referido quedó en la empresa.</p>';
+  else if(r.resultado==="rechazado") h+='<span class="badge b-rechazado">Rechazado</span></div><p class="small">No continuó en el proceso.</p>';
+  else{
+    var f=info(r),L={training:"En training",trabajando:"Trabajando su mes",espera:"Esperando confirmación"};
+    h+='<span class="badge b-'+f.phase+'">'+L[f.phase]+'</span></div>';
+    h+='<div class="bar"><i style="width:'+Math.min(f.el,DT)/f.tot*100+'%;background:var(--blue)"></i><i style="width:'+Math.max(0,f.el-DT)/f.tot*100+'%;background:var(--warn)"></i></div>';
+    h+='<div class="small">Training hasta ~'+fmt(f.tEnd)+' · Mes trabajando hasta ~'+fmt(f.wEnd)+'</div>';
+    h+=f.phase==="espera"?'<div class="small"><b>Ya cumplió el tiempo estimado.</b> La confirmación suele llegar a finales de mes (~'+fmt(f.notify)+').</div>'
+      :'<div class="small"><b>Faltan ~'+f.left+' día'+(f.left===1?"":"s")+'</b> · resultado estimado: '+fmt(f.wEnd)+' (te avisan a más tardar a fin de ese mes).</div>';
+    h+='<div class="acts"><button class="sm ok" data-a="quedo" data-id="'+r.id+'">Quedó</button><button class="sm bad" data-a="rechazado" data-id="'+r.id+'">Lo rechazaron</button></div>';
+  }
+  if(r.resultado!=="pendiente") h+='<div class="acts"><button class="sm" data-a="pendiente" data-id="'+r.id+'">Volver a en proceso</button></div>';
+  return h+'<div class="acts"><button class="sm" data-a="del" data-id="'+r.id+'">Eliminar</button></div></div>';
+}
+function counts(a){var q=0,x=0,e=0;a.forEach(function(r){if(r.resultado==="quedo")q++;else if(r.resultado==="rechazado")x++;else e++});return '<div class="stat"><b>'+a.length+'</b><span>Referidos</span></div><div class="stat"><b>'+e+'</b><span>En proceso</span></div><div class="stat"><b>'+q+'</b><span>Quedaron</span></div><div class="stat"><b>'+x+'</b><span>Rechazados</span></div>'}
+function render(){
+  $("stats").innerHTML=counts(mine);
+  $("list").innerHTML=mine.length?mine.map(function(r){return card(r)}).join(""):'<div class="card empty">Aún no has registrado referidos.<br>Agrega el primero arriba ✦</div>';
+  if(profile&&profile.is_admin){
+    $("aStats").innerHTML=counts(all);
+    var g={};all.forEach(function(r){var n=(r.profiles&&r.profiles.nombre)||"Empleado";(g[n]=g[n]||[]).push(r)});
+    var h="";Object.keys(g).sort().forEach(function(n){h+='<h2>'+esc(n)+' <span class="small">· '+g[n].length+' referido'+(g[n].length===1?"":"s")+'</span></h2>'+g[n].map(function(r){return card(r,true)}).join("")});
+    $("aList").innerHTML=h||'<div class="card empty">Nadie ha registrado referidos todavía.</div>';
+  }
+}
+async function loadData(){
+  var q=await sb.from("referidos").select("*, profiles(nombre)").order("fecha_referido",{ascending:false});
+  if(q.error)return;
+  all=q.data||[]; mine=all.filter(function(r){return r.user_id===me.id}); render();
+}
+async function act(ev){
+  var b=ev.target.closest("button[data-id]"); if(!b)return; var id=b.dataset.id,a=b.dataset.a,r;
+  if(a==="del"){if(!confirm("¿Eliminar este referido?"))return;r=await sb.from("referidos").delete().eq("id",id)}
+  else r=await sb.from("referidos").update({resultado:a}).eq("id",id);
+  if(r.error)alert("No se pudo guardar el cambio."); else loadData();
+}
+$("list").addEventListener("click",act);$("aList").addEventListener("click",act);
+
+$("add").onclick=async function(){
+  var n=$("fName").value.trim(),p=$("fPhone").value.trim(),e=$("fEmail").value.trim(),d=$("fDate").value;
+  if(!n||!p||!e||!d){setMsg("msg","Completa todos los campos.","e");return}
+  $("add").disabled=true;
+  var r=await sb.from("referidos").insert({nombre:n,telefono:p,correo:e,fecha_referido:d});
+  $("add").disabled=false;
+  if(r.error){setMsg("msg","No se pudo guardar. Intenta de nuevo.","e");return}
+  $("fName").value=$("fPhone").value=$("fEmail").value="";setMsg("msg","Guardado ✓","g");loadData();
+};
+function setView(v){$("mine").classList.toggle("hide",v!=="mine");$("admin").classList.toggle("hide",v!=="admin");$("tMine").classList.toggle("on",v==="mine");$("tAdmin").classList.toggle("on",v==="admin")}
+$("tMine").onclick=function(){setView("mine")};$("tAdmin").onclick=function(){setView("admin")};
+
+async function boot(){
+  if(!sb)return;
+  var s=(await sb.auth.getSession()).data.session;
+  if(!s){me=null;$("auth").classList.remove("hide");$("app").classList.add("hide");$("logout").classList.add("hide");
+    $("hTitle").textContent="Tus referidos, siempre a la vista";$("hSub").textContent="Registra a quién refieres y sigue el proceso día a día.";return}
+  me=s.user;
+  var p=await sb.from("profiles").select("nombre,is_admin").eq("id",me.id).single();
+  profile=p.data||{nombre:"",is_admin:false};
+  $("auth").classList.add("hide");$("app").classList.remove("hide");$("logout").classList.remove("hide");
+  $("hTitle").textContent="Hola, "+(profile.nombre||"").split(" ")[0]+" 👋";$("hSub").textContent="Aquí ves cuánto falta para que cada referido complete su proceso.";
+  $("adminTabs").classList.toggle("hide",!profile.is_admin);$("fDate").value=today();
+  setView("mine");loadData();
+}
+if(sb){
+  sb.auth.onAuthStateChange(function(ev){
+    if(ev==="PASSWORD_RECOVERY"){$("auth").classList.add("hide");$("recover").classList.remove("hide")}
+    else if(ev==="SIGNED_IN"||ev==="SIGNED_OUT")boot();
+  });
+  boot();
+}
+</script>
+</body>
+</html>
