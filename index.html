@@ -28,7 +28,8 @@ h2{font-size:1.2rem;margin:28px 0 12px}
 .stat{text-align:center}.stat b{display:block;font-family:Fraunces,serif;font-size:2rem;line-height:1.1}.stat span{color:var(--mute);font-size:.82rem}
 label{display:block;font-size:.82rem;color:var(--mute);margin:12px 0 4px;font-weight:500}
 input{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit}
-input:focus{outline:0;border-color:var(--acc)}
+select{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit}
+input:focus,select:focus{outline:0;border-color:var(--acc)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:520px){.two{grid-template-columns:1fr}}
 button.main{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:0;border-radius:12px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer;margin-top:16px}
 button.main:disabled{opacity:.6}
@@ -90,10 +91,16 @@ button.sm.ok{color:var(--ok);border-color:var(--ok)}button.sm.bad{color:var(--ba
       <label>Fecha en que lo referiste</label><input id="fDate" type="date">
       <button class="main" id="add">Guardar referido</button><div class="msg" id="msg"></div>
     </div>
-    <h2>Seguimiento</h2><div id="list"></div>
+    <div class="row" style="align-items:center"><h2>Seguimiento</h2><button class="sm" id="dlMine" style="margin-top:14px">Descargar mis referidos</button></div><div id="list"></div>
   </div>
 
   <div id="admin" class="hide">
+    <div class="card">
+      <div class="two"><div><label style="margin-top:0">Empleado</label><select id="fEmp"></select></div>
+      <div><label style="margin-top:0">Estado</label><select id="fSt"><option value="">Todos</option><option value="pendiente">En proceso</option><option value="quedo">Quedaron</option><option value="rechazado">Rechazados</option></select></div></div>
+      <label>Buscar referido (nombre, teléfono o correo)</label><input id="fQ" autocomplete="off">
+      <button class="main" id="dlAll">Descargar en Excel</button> <span class="small">Se descarga lo que ves con los filtros aplicados.</span>
+    </div>
     <div class="card grid" id="aStats"></div>
     <div id="aList"></div>
   </div>
@@ -120,7 +127,7 @@ applyTheme();
 $("theme").onclick=function(){th=th==="dark"?"light":"dark";try{localStorage.setItem("jav_theme",th)}catch(e){}applyTheme()};
 
 // ---- Supabase ----
-var sb=null, me=null, profile=null, mine=[], all=[];
+var sb=null, me=null, profile=null, mine=[], all=[], view_=[], aF={emp:'',st:'',q:''};
 try{ if(C.SUPABASE_URL&&C.SUPABASE_URL.indexOf("TU-PROYECTO")<0) sb=supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY); }catch(e){}
 if(!sb) setMsg("aMsg","Falta configurar config.js con los datos de Supabase.","e");
 
@@ -187,12 +194,43 @@ function card(r,adm){
   return h+'<div class="acts"><button class="sm" data-a="del" data-id="'+r.id+'">Eliminar</button></div></div>';
 }
 function counts(a){var q=0,x=0,e=0;a.forEach(function(r){if(r.resultado==="quedo")q++;else if(r.resultado==="rechazado")x++;else e++});return '<div class="stat"><b>'+a.length+'</b><span>Referidos</span></div><div class="stat"><b>'+e+'</b><span>En proceso</span></div><div class="stat"><b>'+q+'</b><span>Quedaron</span></div><div class="stat"><b>'+x+'</b><span>Rechazados</span></div>'}
+function filtered(){
+  var q=aF.q.toLowerCase();
+  return all.filter(function(r){
+    var n=(r.profiles&&r.profiles.nombre)||"Empleado";
+    if(aF.emp&&n!==aF.emp)return false;
+    if(aF.st&&r.resultado!==aF.st)return false;
+    if(q&&(r.nombre+" "+r.telefono+" "+r.correo).toLowerCase().indexOf(q)<0)return false;
+    return true;
+  });
+}
+function cell(v){
+  v=String(v==null?"":v);
+  if(/^[=@\t\r]/.test(v)||(/^[+-]/.test(v)&&!/^[+-]?[\d\s()-]+$/.test(v)))v="'"+v;
+  return '"'+v.replace(/"/g,'""')+'"';
+}
+function downloadCsv(list,name){
+  var E={pendiente:"En proceso",quedo:"Quedó",rechazado:"Rechazado"},L={training:"en training",trabajando:"trabajando su mes",espera:"esperando confirmación"};
+  var rows=[["Empleado","Referido","Teléfono","Correo","Fecha referido","Estado","Etapa","Resultado estimado"]];
+  list.forEach(function(r){
+    var f=info(r);
+    rows.push([(r.profiles&&r.profiles.nombre)||"",r.nombre,r.telefono,r.correo,r.fecha_referido,E[r.resultado]||r.resultado,r.resultado==="pendiente"?L[f.phase]:"",r.resultado==="pendiente"?new Date(f.wEnd).toISOString().slice(0,10):""]);
+  });
+  var csv="\ufeff"+rows.map(function(x){return x.map(cell).join(",")}).join("\r\n");
+  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download=name+"-"+today()+".csv";document.body.appendChild(a);a.click();a.remove();
+}
 function render(){
   $("stats").innerHTML=counts(mine);
   $("list").innerHTML=mine.length?mine.map(function(r){return card(r)}).join(""):'<div class="card empty">Aún no has registrado referidos.<br>Agrega el primero arriba ✦</div>';
   if(profile&&profile.is_admin){
-    $("aStats").innerHTML=counts(all);
-    var g={};all.forEach(function(r){var n=(r.profiles&&r.profiles.nombre)||"Empleado";(g[n]=g[n]||[]).push(r)});
+    var nm=function(r){return (r.profiles&&r.profiles.nombre)||"Empleado"};
+    var emps=[];all.forEach(function(r){if(emps.indexOf(nm(r))<0)emps.push(nm(r))});emps.sort();
+    var sel=$("fEmp"),sig=emps.join("|");
+    if(sel.dataset.sig!==sig){sel.innerHTML='<option value="">Todos los empleados</option>'+emps.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join("");sel.value=aF.emp;sel.dataset.sig=sig}
+    view_=filtered();
+    $("aStats").innerHTML=counts(view_);
+    var g={};view_.forEach(function(r){var n=(r.profiles&&r.profiles.nombre)||"Empleado";(g[n]=g[n]||[]).push(r)});
     var h="";Object.keys(g).sort().forEach(function(n){h+='<h2>'+esc(n)+' <span class="small">· '+g[n].length+' referido'+(g[n].length===1?"":"s")+'</span></h2>'+g[n].map(function(r){return card(r,true)}).join("")});
     $("aList").innerHTML=h||'<div class="card empty">Nadie ha registrado referidos todavía.</div>';
   }
@@ -219,6 +257,11 @@ $("add").onclick=async function(){
   if(r.error){setMsg("msg","No se pudo guardar. Intenta de nuevo.","e");return}
   $("fName").value=$("fPhone").value=$("fEmail").value="";setMsg("msg","Guardado ✓","g");loadData();
 };
+$("fEmp").onchange=function(){aF.emp=this.value;render()};
+$("fSt").onchange=function(){aF.st=this.value;render()};
+$("fQ").oninput=function(){aF.q=this.value.trim();render()};
+$("dlAll").onclick=function(){downloadCsv(view_,"referidos")};
+$("dlMine").onclick=function(){downloadCsv(mine,"mis-referidos")};
 function setView(v){$("mine").classList.toggle("hide",v!=="mine");$("admin").classList.toggle("hide",v!=="admin");$("tMine").classList.toggle("on",v==="mine");$("tAdmin").classList.toggle("on",v==="admin")}
 $("tMine").onclick=function(){setView("mine")};$("tAdmin").onclick=function(){setView("admin")};
 
