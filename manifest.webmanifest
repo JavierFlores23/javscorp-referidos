@@ -1,0 +1,25 @@
+{
+  "name": "Jav's Corp — Referidos",
+  "short_name": "Referidos",
+  "description": "Registro y seguimiento de referidos",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbf7f2",
+  "theme_color": "#e0551f",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
