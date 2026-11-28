@@ -48,6 +48,12 @@ button.sm.ok{color:var(--ok);border-color:var(--ok)}button.sm.bad{color:var(--ba
 .tabs button.on{background:var(--ink);color:var(--bg)}
 .msg{font-size:.88rem;margin-top:12px;min-height:1.2em}.msg.e{color:var(--bad)}.msg.g{color:var(--ok)}
 .hide{display:none!important}
+.bars{display:flex;gap:10px;align-items:flex-end;height:150px}
+.bc{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;font-size:.8rem;color:var(--mute)}
+.bc b{color:var(--ink)}.bv{width:100%;max-width:46px;background:linear-gradient(180deg,var(--acc2),var(--acc));border-radius:8px 8px 0 0;min-height:3px;margin-bottom:4px}
+table.rk{width:100%;border-collapse:collapse;font-size:.9rem}table.rk th{text-align:left;color:var(--mute);font-weight:500;font-size:.8rem;padding:6px 8px;border-bottom:1.5px solid var(--line)}
+table.rk td{padding:9px 8px;border-bottom:1px solid var(--line)}table.rk td:not(:first-child),table.rk th:not(:first-child){text-align:center}
+.soon{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.9rem;flex-wrap:wrap}.soon:last-child{border:0}
 .empty{text-align:center;color:var(--mute);padding:26px}
 .auth{max-width:430px;margin:0 auto}
 </style>
@@ -89,12 +95,15 @@ button.sm.ok{color:var(--ok);border-color:var(--ok)}button.sm.bad{color:var(--ba
       <label style="margin-top:0">Nombre completo</label><input id="fName" autocomplete="off">
       <div class="two"><div><label>Teléfono</label><input id="fPhone" inputmode="tel" autocomplete="off"></div><div><label>Correo electrónico</label><input id="fEmail" type="email" autocomplete="off"></div></div>
       <label>Fecha en que lo referiste</label><input id="fDate" type="date">
+      <label>Notas (opcional)</label><input id="fNotas" autocomplete="off" placeholder="ej. entrevista el viernes">
       <button class="main" id="add">Guardar referido</button><div class="msg" id="msg"></div>
     </div>
     <div class="row" style="align-items:center"><h2>Seguimiento</h2><button class="sm" id="dlMine" style="margin-top:14px">Descargar mis referidos</button></div><div id="list"></div>
   </div>
 
   <div id="admin" class="hide">
+    <div id="aSum"></div>
+    <h2>Detalle por empleado</h2>
     <div class="card">
       <div class="two"><div><label style="margin-top:0">Empleado</label><select id="fEmp"></select></div>
       <div><label style="margin-top:0">Estado</label><select id="fSt"><option value="">Todos</option><option value="pendiente">En proceso</option><option value="quedo">Quedaron</option><option value="rechazado">Rechazados</option></select></div></div>
@@ -191,9 +200,36 @@ function card(r,adm){
     h+='<div class="acts"><button class="sm ok" data-a="quedo" data-id="'+r.id+'">Quedó</button><button class="sm bad" data-a="rechazado" data-id="'+r.id+'">Lo rechazaron</button></div>';
   }
   if(r.resultado!=="pendiente") h+='<div class="acts"><button class="sm" data-a="pendiente" data-id="'+r.id+'">Volver a en proceso</button></div>';
-  return h+'<div class="acts"><button class="sm" data-a="del" data-id="'+r.id+'">Eliminar</button></div></div>';
+  if(r.dup&&r.dup.length){
+    h+='<div class="small" style="color:var(--bad);margin-top:10px">⚠ Posible duplicado'+(adm?': también registrado por '+r.dup.map(function(x){return esc(nmOf(x))+" ("+fmt(parse(x.fecha_referido))+")"}).join(", "):': esta persona aparece registrada más de una vez')+'</div>';
+  }
+  if(r.notas) h+='<div class="small" style="margin-top:8px">📝 '+esc(r.notas)+'</div>';
+  return h+'<div class="acts"><button class="sm" data-a="nota" data-id="'+r.id+'">'+(r.notas?"Editar nota":"Agregar nota")+'</button><button class="sm" data-a="del" data-id="'+r.id+'">Eliminar</button></div></div>';
 }
 function counts(a){var q=0,x=0,e=0;a.forEach(function(r){if(r.resultado==="quedo")q++;else if(r.resultado==="rechazado")x++;else e++});return '<div class="stat"><b>'+a.length+'</b><span>Referidos</span></div><div class="stat"><b>'+e+'</b><span>En proceso</span></div><div class="stat"><b>'+q+'</b><span>Quedaron</span></div><div class="stat"><b>'+x+'</b><span>Rechazados</span></div>'}
+function nmOf(r){return (r.profiles&&r.profiles.nombre)||"Empleado"}
+function dupKeys(r){var k=[],d=String(r.telefono||"").replace(/\D/g,"");if(d.length>=8)k.push("t"+d.slice(-8));var e=String(r.correo||"").trim().toLowerCase();if(e)k.push("e"+e);return k}
+function markDups(){
+  var map={};all.forEach(function(r){dupKeys(r).forEach(function(k){(map[k]=map[k]||[]).push(r)})});
+  all.forEach(function(r){var o=[];dupKeys(r).forEach(function(k){map[k].forEach(function(x){if(x!==r&&o.indexOf(x)<0)o.push(x)})});r.dup=o});
+}
+function summary(){
+  var q=0,x=0,e=0;all.forEach(function(r){if(r.resultado==="quedo")q++;else if(r.resultado==="rechazado")x++;else e++});
+  var rate=function(a,b){return a+b?Math.round(a/(a+b)*100)+"%":"—"};
+  var h='<h2>Resumen general</h2><div class="card grid"><div class="stat"><b>'+all.length+'</b><span>Referidos</span></div><div class="stat"><b>'+e+'</b><span>En proceso</span></div><div class="stat"><b>'+q+'</b><span>Quedaron</span></div><div class="stat"><b>'+x+'</b><span>Rechazados</span></div><div class="stat"><b>'+rate(q,x)+'</b><span>Tasa de aceptación</span></div></div>';
+  var now=new Date(),ms=[];
+  for(var i=5;i>=0;i--){var d=new Date(now.getFullYear(),now.getMonth()-i,1);ms.push({k:d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2),l:d.toLocaleDateString("es-SV",{month:"short"}),n:0})}
+  all.forEach(function(r){var k=(r.fecha_referido||"").slice(0,7);ms.forEach(function(m){if(m.k===k)m.n++})});
+  var mx=Math.max.apply(null,ms.map(function(m){return m.n}).concat([1]));
+  h+='<h2>Referidos por mes</h2><div class="card"><div class="bars">'+ms.map(function(m){return '<div class="bc"><b>'+m.n+'</b><div class="bv" style="height:'+Math.round(m.n/mx*90)+'px"></div><span>'+esc(m.l)+'</span></div>'}).join("")+'</div></div>';
+  var by={};all.forEach(function(r){var n=nmOf(r),o=by[n]=by[n]||{t:0,q:0,x:0};o.t++;if(r.resultado==="quedo")o.q++;if(r.resultado==="rechazado")o.x++});
+  var names=Object.keys(by).sort(function(a,b){return by[b].q-by[a].q||by[b].t-by[a].t});
+  h+='<h2>Ranking de empleados</h2><div class="card" style="overflow-x:auto"><table class="rk"><tr><th>Empleado</th><th>Referidos</th><th>Quedaron</th><th>Rechazados</th><th>Aceptación</th></tr>'+
+    (names.length?names.map(function(n){var o=by[n];return '<tr><td>'+esc(n)+'</td><td>'+o.t+'</td><td>'+o.q+'</td><td>'+o.x+'</td><td>'+rate(o.q,o.x)+'</td></tr>'}).join(""):'<tr><td colspan="5" class="small">Sin datos todavía.</td></tr>')+'</table></div>';
+  var soon=all.filter(function(r){return r.resultado==="pendiente"}).map(function(r){return {r:r,f:info(r)}}).filter(function(o){return o.f.wEnd<=Date.now()+7*DAY}).sort(function(a,b){return a.f.wEnd-b.f.wEnd});
+  h+='<h2>Por cumplir (próximos 7 días o ya vencidos)</h2><div class="card">'+(soon.length?soon.map(function(o){var past=o.f.wEnd<Date.now();return '<div class="soon"><span><b>'+esc(o.r.nombre)+'</b> <span class="small">· '+esc(nmOf(o.r))+'</span></span><span class="small" style="color:'+(past?'var(--acc)':'var(--ink)')+'">'+(past?'Ya cumplió ('+fmt(o.f.wEnd)+')':'Cumple ~'+fmt(o.f.wEnd))+'</span></div>'}).join(""):'<div class="small">Ningún referido está por cumplir esta semana.</div>')+'</div>';
+  return h;
+}
 function filtered(){
   var q=aF.q.toLowerCase();
   return all.filter(function(r){
@@ -211,10 +247,10 @@ function cell(v){
 }
 function downloadCsv(list,name){
   var E={pendiente:"En proceso",quedo:"Quedó",rechazado:"Rechazado"},L={training:"en training",trabajando:"trabajando su mes",espera:"esperando confirmación"};
-  var rows=[["Empleado","Referido","Teléfono","Correo","Fecha referido","Estado","Etapa","Resultado estimado"]];
+  var rows=[["Empleado","Referido","Teléfono","Correo","Fecha referido","Estado","Etapa","Resultado estimado","Notas"]];
   list.forEach(function(r){
     var f=info(r);
-    rows.push([(r.profiles&&r.profiles.nombre)||"",r.nombre,r.telefono,r.correo,r.fecha_referido,E[r.resultado]||r.resultado,r.resultado==="pendiente"?L[f.phase]:"",r.resultado==="pendiente"?new Date(f.wEnd).toISOString().slice(0,10):""]);
+    rows.push([(r.profiles&&r.profiles.nombre)||"",r.nombre,r.telefono,r.correo,r.fecha_referido,E[r.resultado]||r.resultado,r.resultado==="pendiente"?L[f.phase]:"",r.resultado==="pendiente"?new Date(f.wEnd).toISOString().slice(0,10):"",r.notas||""]);
   });
   var csv="\ufeff"+rows.map(function(x){return x.map(cell).join(",")}).join("\r\n");
   var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
@@ -228,6 +264,7 @@ function render(){
     var emps=[];all.forEach(function(r){if(emps.indexOf(nm(r))<0)emps.push(nm(r))});emps.sort();
     var sel=$("fEmp"),sig=emps.join("|");
     if(sel.dataset.sig!==sig){sel.innerHTML='<option value="">Todos los empleados</option>'+emps.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join("");sel.value=aF.emp;sel.dataset.sig=sig}
+    $("aSum").innerHTML=summary();
     view_=filtered();
     $("aStats").innerHTML=counts(view_);
     var g={};view_.forEach(function(r){var n=(r.profiles&&r.profiles.nombre)||"Empleado";(g[n]=g[n]||[]).push(r)});
@@ -238,11 +275,16 @@ function render(){
 async function loadData(){
   var q=await sb.from("referidos").select("*, profiles(nombre)").order("fecha_referido",{ascending:false});
   if(q.error)return;
-  all=q.data||[]; mine=all.filter(function(r){return r.user_id===me.id}); render();
+  all=q.data||[]; markDups(); mine=all.filter(function(r){return r.user_id===me.id}); render();
 }
 async function act(ev){
   var b=ev.target.closest("button[data-id]"); if(!b)return; var id=b.dataset.id,a=b.dataset.a,r;
   if(a==="del"){if(!confirm("¿Eliminar este referido?"))return;r=await sb.from("referidos").delete().eq("id",id)}
+  else if(a==="nota"){
+    var row=all.filter(function(x){return x.id===id})[0];
+    var t=prompt("Nota para este referido:",row&&row.notas?row.notas:""); if(t===null)return;
+    r=await sb.from("referidos").update({notas:t.trim().slice(0,500)}).eq("id",id);
+  }
   else r=await sb.from("referidos").update({resultado:a}).eq("id",id);
   if(r.error)alert("No se pudo guardar el cambio."); else loadData();
 }
@@ -252,10 +294,14 @@ $("add").onclick=async function(){
   var n=$("fName").value.trim(),p=$("fPhone").value.trim(),e=$("fEmail").value.trim(),d=$("fDate").value;
   if(!n||!p||!e||!d){setMsg("msg","Completa todos los campos.","e");return}
   $("add").disabled=true;
-  var r=await sb.from("referidos").insert({nombre:n,telefono:p,correo:e,fecha_referido:d});
+  try{
+    var dq=await sb.rpc("buscar_duplicado",{p_tel:p,p_correo:e}), dd=dq.data&&dq.data[0];
+    if(dd&&!confirm("⚠ Esta persona ya fue referida el "+fmt(parse(dd.fecha))+(dd.es_mio?" (por ti)":" (por otro empleado)")+".\n\n¿Quieres guardarla de todos modos?")){$("add").disabled=false;return}
+  }catch(x){}
+  var r=await sb.from("referidos").insert({nombre:n,telefono:p,correo:e,fecha_referido:d,notas:$("fNotas").value.trim().slice(0,500)});
   $("add").disabled=false;
   if(r.error){setMsg("msg","No se pudo guardar. Intenta de nuevo.","e");return}
-  $("fName").value=$("fPhone").value=$("fEmail").value="";setMsg("msg","Guardado ✓","g");loadData();
+  $("fName").value=$("fPhone").value=$("fEmail").value=$("fNotas").value="";setMsg("msg","Guardado ✓","g");loadData();
 };
 $("fEmp").onchange=function(){aF.emp=this.value;render()};
 $("fSt").onchange=function(){aF.st=this.value;render()};
