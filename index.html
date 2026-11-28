@@ -214,7 +214,8 @@ function card(r,adm){
     h+='<div class="small" style="color:var(--bad);margin-top:10px">⚠ Posible duplicado'+(adm?': también registrado por '+r.dup.map(function(x){return esc(nmOf(x))+" ("+fmt(parse(x.fecha_referido))+")"}).join(", "):': esta persona aparece registrada más de una vez')+'</div>';
   }
   if(r.notas) h+='<div class="small" style="margin-top:8px">📝 '+esc(r.notas)+'</div>';
-  return h+'<div class="acts"><button class="sm" data-a="nota" data-id="'+r.id+'">'+(r.notas?"Editar nota":"Agregar nota")+'</button><button class="sm" data-a="del" data-id="'+r.id+'">Eliminar</button></div></div>';
+  return h+'<div class="acts"><button class="sm" data-a="nota" data-id="'+r.id+'">'+(r.notas?"Editar nota":"Agregar nota")+'</button>'+(r.notas?'<button class="sm" data-a="notax" data-id="'+r.id+'">Quitar nota</button>':'')+'</div>'+
+    '<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--line);text-align:right"><button class="sm bad" data-a="del" data-id="'+r.id+'">Eliminar referido completo</button></div></div>';
 }
 function counts(a){var q=0,x=0,e=0;a.forEach(function(r){if(r.resultado==="quedo")q++;else if(r.resultado==="rechazado")x++;else e++});return '<div class="stat"><b>'+a.length+'</b><span>Referidos</span></div><div class="stat"><b>'+e+'</b><span>En proceso</span></div><div class="stat"><b>'+q+'</b><span>Quedaron</span></div><div class="stat"><b>'+x+'</b><span>Rechazados</span></div>'}
 function contactLinks(r,adm){
@@ -312,7 +313,11 @@ async function loadData(){
 }
 async function act(ev){
   var b=ev.target.closest("button[data-id]"); if(!b)return; var id=b.dataset.id,a=b.dataset.a,r;
-  if(a==="del"){if(!confirm("¿Eliminar este referido?"))return;r=await sb.from("referidos").delete().eq("id",id)}
+  if(a==="del"){var dr=all.filter(function(x){return x.id===id})[0];if(!confirm("¿Eliminar a "+(dr?dr.nombre:"este referido")+"?\n\nSe borra TODO el registro del referido, no solo la nota. No se puede deshacer."))return;r=await sb.from("referidos").delete().eq("id",id)}
+  else if(a==="notax"){
+    if(!confirm("¿Quitar solo la nota? El referido se queda."))return;
+    r=await sb.from("referidos").update({notas:""}).eq("id",id);
+  }
   else if(a==="nota"){
     var row=all.filter(function(x){return x.id===id})[0];
     var t=prompt("Nota para este referido:",row&&row.notas?row.notas:""); if(t===null)return;
